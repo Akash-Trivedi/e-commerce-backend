@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.minimap.enabled": false,
+		"editor.fontSize": 16,
+		"editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
+		"editor.cursorBlinking": "phase",
+		"editor.cursorStyle": "line",
+		"editor.glyphMargin": false,
+		"editor.lightbulb.enabled": true,
+		"editor.tabSize": 4,
+		"vscode-edge-devtools.mirrorEdits": true,
+		// custom settings
+		"zenMode.centerLayout": true,
+		"workbench.editor.showTabs": true,
+		"workbench.iconTheme": "eq-material-theme-icons",
+		"python.formatting.provider": "autopep8",
+		"workbench.colorTheme": "Default High Contrast"
+	}
+}
