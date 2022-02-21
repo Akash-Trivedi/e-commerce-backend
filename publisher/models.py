@@ -2,71 +2,37 @@
 # usage: all the tables related to the publisher and its products
 # calling function:
 
+from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+
+
+# at the time of registration this table will fill first
+class PublisherAuth(models.Model):
+    contactId = models.CharField(max_length=10, null=False, primary_key=True)
+    password = models.CharField(max_length=64, null=True)
 
 
 class Publisher(models.Model):
-    sellerTypes = {
-        'r': 'retail',
-        'g': 'godown'
-    }
+    publisherId = models.AutoField(primary_key=True)
+    contactId = models.ForeignKey(PublisherAuth, on_delete=models.CASCADE)
+    firstName = models.CharField(max_length=32, null=True)
+    lastName = models.CharField(max_length=32, null=True)
+    email = models.EmailField(max_length=64, null=True)
 
-    publisherId = models.BigAutoField()
-    contact = models.CharField(max_length=10, null=False)
-    firstName = models.CharField(max_length=32, default="")
-    lastName = models.CharField(max_length=32, default="")
-    email = models.EmailField()
-    sellerType = models.TextChoices()
-    shopName = models.CharField()
+    # publisherImage = models.CharField() remaining
+    # shopImage = models.CharField() remaining
 
-    publisherImage = models.CharField()
-    shopImage = models.CharField()
+    dob = models.DateField(null=True)
 
-    dob = models.CharField(max_length=32, default="")
+    registrationDate = models.DateTimeField(null=False, default=timezone.now)
 
-    registrationDate = models.models.DateTimeField(
-        _(""), auto_now=False, auto_now_add=False)
-
-    address = models.TextField(max_length=64, default="")
-    pincode = models.IntegerField(default=0)
+    address = models.CharField(max_length=64, null=True)
+    pincode = models.IntegerField(null=False)
 
 
-class Category(models.Model):
-    categoryId = models.BigAutoField()
-    categoryName = models.CharField(max_length=32, null=False)
-
-
-class Product(models.Model):
-    size = {
-        's': 'Small',
-        'm': 'Medium',
-        'l': 'Large',
-        'xl': 'XL',
-        'xxl': 'XXL',
-        'xxxl': 'XXXL',
-    }
-    productId = models.BigAutoField()
-    description = models.TextField()
-    stock = models.IntegerField(null=False)
-    price = models.FloatField(null=False)
-    size = models.Choices()
-    color = models.Choices()
-    # parentCompany=model check for table relations
-    # pulisherId=models.
-    productImage = models.CharField(default='')
-    edition = models.TextChoices()
-    discounts = models.IntegerField(default=0)
-    category = models.models.ManyToManyField(
-        "publisher.models.Category", verbose_name=_(""))
-
-class OrderSummary(models.Model):
-    orderId=models.BigAutoField()
-    customerId=models.ForeignKey(to, on_delete)
-    orderPlaceTime=models.DateTimeField()
-    orderDispatchTime=models.DateTimeField()
-    orderShippedTime=models.DateTimeField()
-    orderDeliveryTime=models.DateTimeField()
-    status=models.CharField()
-    addressId=models.ForeignKey(to, on_delete)
-    pincode=models.IntegerField()
+class Shop(models.Model):
+    publisherShopId = models.AutoField(primary_key=True)
+    publisherId = models.ForeignKey(
+        Publisher, null=False, on_delete=models.CASCADE)
+    shopName = models.CharField(max_length=64, null=False)
+    shopPincode = models.CharField(max_length=6, null=False, default='208012')

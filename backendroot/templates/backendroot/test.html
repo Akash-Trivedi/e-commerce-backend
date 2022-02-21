@@ -1,12 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+
+    </script>
 </head>
+
 <body>
-    <h2>working!</h2>
+    <ol>
+        <li><a href="product/tags-all">get all tags</a></li>
+        <li><a href="product/tags-all">get prodcuts</a></li>
+        <li><a href="publisher/list-all-publishers">get all publishers</a></li>
+        <li><a href="publisher/list-all-shops">get all shops</a></li>
+    </ol>
+    <form action="/publisher/list-all-shops/" method="get">
+        {% csrf_token %}
+        <label for="pincode">search shop by pincode: </label>
+        <input id="pincode" type="number" name="shop-pincode">
+        <input type="submit" name="submit" value="get">
+    </form>
+    <form action="/publisher/list-all-publishers/" method="get">
+        {% csrf_token %}
+        <label for="publisher">search publisher by pincode: </label>
+        <input id="publisher" type="number" name="publisher-pincode">
+        <input type="submit" name="submit" value="get">
+    </form>
 </body>
+
 </html>

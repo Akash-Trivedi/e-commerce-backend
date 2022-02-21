@@ -10,6 +10,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-0-5chvaf#ltycy^jzhw=b*xk^q5mysofgudruhwz=cut#%5#i!'
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.ScryptPasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -26,10 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'backendroot',
-    'customer',
+    'product',
     'publisher',
     'rest_framework',
-    'restapi'
 ]
 
 MIDDLEWARE = [

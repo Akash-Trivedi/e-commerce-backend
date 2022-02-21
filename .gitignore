@@ -8,6 +8,7 @@ __pycache__/
 
 #custom
 backendroot/e-commerce-backend-env/
+.idea
 
 # Distribution / packaging
 .Python

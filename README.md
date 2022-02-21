@@ -26,3 +26,6 @@ back-end for e-commerce in Django.
 
 **Formatter for Python file used**
   - include this in settings json: "python.formatting.provider": "autopep8"
+
+**Encrytion in Django**
+  - python3 -m pip install bcrypt 
