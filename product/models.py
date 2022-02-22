@@ -3,28 +3,20 @@
 # calling function:
 
 from django.db import models
-from django.forms import CharField
-
+from publisher.models import Publisher
 
 tagChoices = [
     ('Electronics', 'Electronics'),
     ('Sports', 'Sports'),
     ('Cooking Utensiles', 'Cooking Utensils'),
+    ('Men Clothing', 'Men Clothing'),
+    ('Women Clothing', 'Women Clothing'),
+    ('Children Clothing', 'Children Clothing'),
+    ('Winter Clothing', 'Winter Clothing'),
+    ('Gaming Accessories', 'Gaming Accessories'),
+    ('Mobile Phone Accessories', 'Mobile Phone Accessories'),
+    ('Travel', 'Travel'),
 ]
-
-
-class Tag(models.Model):
-    tagId = models.AutoField(primary_key=True)
-    tagName = models.CharField(choices=tagChoices, max_length=64, null=False)
-
-    def __str__(self):
-        return self.tagName
-
-
-class Company(models.Model):
-    companyId = models.AutoField(primary_key=True)
-    companyName = models.CharField(max_length=64, null=False, unique=True)
-
 
 size = {
     'none': 'none',
@@ -36,29 +28,34 @@ size = {
     'xxxl': 'XXXL',
 }
 
-# generalized model for product, differentiate by tagId
+
+class Tag(models.Model):
+    # primary key
+    tagId = models.AutoField(primary_key=True)
+
+    # other details
+    tagName = models.CharField(choices=tagChoices, max_length=64, null=False)
+
+    def __str__(self):
+        return self.tagName
 
 
 class Product(models.Model):
+    # primary key
     productId = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=32)
-    stock = models.IntegerField(null=False)
-    price = models.IntegerField(null=False)
-    size = models.CharField(max_length=8, null=True, default='-')
-    color = models.CharField(max_length=32)
-    company = models.ForeignKey(Company, null=False, on_delete=models.CASCADE)
-    edition = models.CharField(max_length=32, default='-')
-    discounts = models.IntegerField(default=0)
+
+    # foreign keys
     tagId = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
+    publisherId = models.ForeignKey(
+        Publisher, on_delete=models.CASCADE)
 
-
-# class OrderSummary(models.Model):
-#     orderId = models.BigAutoField()
-#     customerId = models.ForeignKey(to, on_delete)
-#     orderPlaceTime = models.DateTimeField()
-#     orderDispatchTime = models.DateTimeField()
-#     orderShippedTime = models.DateTimeField()
-#     orderDeliveryTime = models.DateTimeField()
-#     status = models.CharField()
-#     addressId = models.ForeignKey(to, on_delete)
-#     pincode = models.IntegerField()
+    # other details
+    name = models.CharField(max_length=64, null=False)
+    companyName = models.CharField(max_length=64, null=False)
+    description = models.CharField(max_length=255)
+    stock = models.IntegerField(null=False)
+    price = models.FloatField(null=False)
+    size = models.CharField(max_length=8, null=True, default='-')
+    color = models.CharField(max_length=32, null=False)
+    edition = models.CharField(max_length=32, default='-', null=True)
+    discount = models.IntegerField(default=0, null=True)

@@ -32,9 +32,8 @@ class PublisherRegistration(View):
 class PublisherView(View):
     def get(self, request):
         try:
+
             if 'publisher-pincode' in request.GET:
-                print(f"printing post request inputs: {request.GET['publisher-pincode']}")
-                print(f"printing whole request: {request}")
                 publishersList = Publisher.objects.filter(pincode=request.GET['publisher-pincode'])
             else:
                 publishersList = Publisher.objects.all()

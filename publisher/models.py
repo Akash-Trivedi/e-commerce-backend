@@ -1,6 +1,6 @@
 # date-created: 17-feb-2022
-# usage: all the tables related to the publisher and its products
-# calling function:
+# usage: all the tables related to the publisher and its shops
+# calling function: -
 
 from django.utils import timezone
 from django.db import models
@@ -8,31 +8,38 @@ from django.db import models
 
 # at the time of registration this table will fill first
 class PublisherAuth(models.Model):
+    # primary key
     contactId = models.CharField(max_length=10, null=False, primary_key=True)
-    password = models.CharField(max_length=64, null=True)
+
+    # other details
+    password = models.CharField(max_length=255, null=True)
 
 
 class Publisher(models.Model):
+    # primary key
     publisherId = models.AutoField(primary_key=True)
+
+    # foreign key
     contactId = models.ForeignKey(PublisherAuth, on_delete=models.CASCADE)
-    firstName = models.CharField(max_length=32, null=True)
-    lastName = models.CharField(max_length=32, null=True)
-    email = models.EmailField(max_length=64, null=True)
 
-    # publisherImage = models.CharField() remaining
-    # shopImage = models.CharField() remaining
-
+    # other details
+    firstName = models.CharField(max_length=64, null=True)
+    lastName = models.CharField(max_length=64, null=True)
+    email = models.EmailField(max_length=255, null=True)
     dob = models.DateField(null=True)
-
     registrationDate = models.DateTimeField(null=False, default=timezone.now)
-
-    address = models.CharField(max_length=64, null=True)
-    pincode = models.IntegerField(null=False)
+    address = models.CharField(max_length=255, null=True)
+    pincode = models.CharField(max_length=6, null=False)
 
 
 class Shop(models.Model):
-    publisherShopId = models.AutoField(primary_key=True)
+    # primary key
+    shopId = models.AutoField(primary_key=True)
+
+    # foreign key
     publisherId = models.ForeignKey(
-        Publisher, null=False, on_delete=models.CASCADE)
-    shopName = models.CharField(max_length=64, null=False)
-    shopPincode = models.CharField(max_length=6, null=False, default='208012')
+        Publisher, on_delete=models.CASCADE)
+
+    # other details
+    name = models.CharField(max_length=64, null=False)
+    pincode = models.CharField(max_length=6, null=False)

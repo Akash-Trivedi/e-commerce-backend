@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'backendroot',
     'product',
     'publisher',
+    'customer',
     'rest_framework',
 ]
 

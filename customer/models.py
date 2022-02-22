@@ -1,41 +1,84 @@
-# date-created: 17-feb-2022
-# usage: all the tables related to the publisher and its products
-# calling function:
+# date-created: 22-feb-2022
+# usage: all the tables related to the customer and its related data
+# calling function: -
 
 from django.db import models
+from django.utils import timezone
+from product.models import Product
+
+
+class CustomerAuth(models.Model):
+    # primary key
+    contactId = models.CharField(max_length=10, null=False)
+
+    # other details
+    password = models.CharField(max_length=255, null=False)
+
 
 class Customer(models.Model):
-    customerTypes = {
-        'r': 'Regular',
-        'p': 'premium'
-    }
+    # primary key
+    customerId = models.AutoField(primary_key=True)
 
-    customerId = models.BigAutoField()
+    # foreign key
+    contactId = models.ForeignKey(
+        CustomerAuth, on_delete=models.CASCADE)
+
+    # other details
+    firstName = models.CharField(max_length=64, null=False)
+    lastName = models.CharField(max_length=64,  null=False)
     contact = models.CharField(max_length=10, null=False)
-    firstName = models.CharField(max_length=32, default="")
-    lastName = models.CharField(max_length=32, default="")
-    email = models.EmailField()
-    cutomerType = models.TextChoices()
-    
-    customerImage = models.CharField()
+    email = models.EmailField(max_length=255)
+    dob = models.DateField()
+    registrationDate = models.DateTimeField(default=timezone.now)
+    pincode = models.CharField(max_length=6, null=True)
 
-    dob = models.CharField(max_length=32, default="")
 
-    registrationDate = models.models.DateTimeField(
-        _(""), auto_now=False, auto_now_add=False)
-
-    address = models.TextField(max_length=64, default="")
-    pincode = models.IntegerField(default=0)
-    
 class Address(models.Model):
-    addressId=models.BigAutoField()
-    customerId=models.ForeignKey(Customer, on_delete='CASCADE')
-    address=models.CharField(max_length=128)
-    
-class Rating:
-    customerId=models.Model()
-    count=models.FloatField()
-    timeStamp=models.models.DateTimeField(_(""), auto_now=False, auto_now_add=False)
-    review=models.CharField(max_length=256)
-    product_Id=models.ForeignKey(to, on_delete)
-    ipAddress=models.IPAddressField()
+    # primary key
+    addressId = models.AutoField(primary_key=True)
+
+    # foriegn key
+    customerId = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+    # other details
+    address = models.CharField(max_length=255)
+    pincode = models.CharField(max_length=6, null=False)
+
+
+class Feedback:
+    # primary key
+    feedbackId = models.AutoField(primary_key=True)
+
+    # foreign key
+    customerId = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    productId = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    # other details
+    starValue = models.IntegerField(null=False)
+    timeStamp = models.DateTimeField(default=timezone.now)
+    review = models.TextField(max_length=600)
+
+
+class OrderSummary(models.Model):
+    # primary key
+    orderId = models.AutoField(primary_key=True)
+
+    # foreign key
+    customerId = models.ForeignKey(
+        Customer, on_delete=models.DO_NOTHING, null=True)
+    addressId = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
+
+    # unique key
+    transactionId = models.CharField(max_length=255, null=False)
+
+    # other details
+    orderPlaceTime = models.DateTimeField(timezone.now, null=False)
+    orderDispatchTime = models.DateTimeField(null=True)
+    orderShippedTime = models.DateTimeField(null=True)
+    orderDeliveryTime = models.DateTimeField(null=True)
+    paymentTime = models.DateTimeField(null=True)
+    status = models.CharField(max_length=10, null=False, default='placed')
+    pincode = models.IntegerField()
+    paymentOption = models.CharField(max_length=16)
+    paymentDone = models.BooleanField(default=False)
+    paymentGateway = models.CharField(max_length=64, null=False)

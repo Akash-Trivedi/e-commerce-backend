@@ -10,6 +10,6 @@ from . import views
 
 urlpatterns = [
     path('tags-all/', views.TagView.as_view()),
-    path('tags/<int:pincode>/', views.TagView.as_view()),
+    path('products-all/', views.ProductView.as_view()),
     path('register/', views.ProductView.as_view()),
 ]

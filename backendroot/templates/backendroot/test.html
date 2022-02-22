@@ -12,11 +12,13 @@
 </head>
 
 <body>
+    <h3>All the responses are limited to JSON</h3>
     <ol>
-        <li><a href="product/tags-all">get all tags</a></li>
-        <li><a href="product/tags-all">get prodcuts</a></li>
-        <li><a href="publisher/list-all-publishers">get all publishers</a></li>
-        <li><a href="publisher/list-all-shops">get all shops</a></li>
+        <li><a href="product/tags-all/">List all the Tags</a></li>
+        <li><a href="product/products-all/">List all Prodcuts</a></li>
+        <li><a href="publisher/list-all-publishers/">List all Publishers</a></li>
+        <li><a href="publisher/list-all-shops/">List all Shops</a></li>
+        <li><a href="customer/list-all-customers/">List all Customers</a></li>
     </ol>
     <form action="/publisher/list-all-shops/" method="get">
         {% csrf_token %}

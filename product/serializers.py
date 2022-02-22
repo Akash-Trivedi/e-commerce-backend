@@ -2,9 +2,8 @@
 # usage: convert the json data to object(data=) and vice versa()
 # calling function/module: product/views.py
 
-from dataclasses import field
 from rest_framework import serializers
-from .models import Company, Product, Tag
+from .models import  Product, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -19,7 +18,3 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = '__all__'
