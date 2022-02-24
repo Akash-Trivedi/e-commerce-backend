@@ -2,7 +2,6 @@
 # usage:
 # calling function: publisher/views.py
 
-from dataclasses import fields
 from rest_framework import serializers
 from .models import PublisherAuth, Shop, Publisher
 
@@ -16,10 +15,10 @@ class PublishAuthSerializer(serializers.ModelSerializer):
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ['shopName']
+        fields = '__all__'
 
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
-        fields = ['firstName', 'lastName']
+        fields = '__all__'

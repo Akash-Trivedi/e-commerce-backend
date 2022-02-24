@@ -52,10 +52,10 @@ class Product(models.Model):
     # other details
     name = models.CharField(max_length=64, null=False)
     companyName = models.CharField(max_length=64, null=False)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, null=False)
     stock = models.IntegerField(null=False)
     price = models.FloatField(null=False)
     size = models.CharField(max_length=8, null=True, default='-')
     color = models.CharField(max_length=32, null=False)
-    edition = models.CharField(max_length=32, default='-', null=True)
     discount = models.IntegerField(default=0, null=True)
+    edition = models.CharField(max_length=32, default='-', null=True)

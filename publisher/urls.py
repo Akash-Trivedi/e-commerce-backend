@@ -2,7 +2,7 @@
 # usage: handle the urlconf path by calling respected views
 # calling function: backendroot/urls.py
 
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -11,6 +11,6 @@ urlpatterns = [
 
     path('list-all-shops/', views.ShopView.as_view()),
 
-    path('registerPublisher/', views.PublisherRegistration.as_view()),
+    path('register-auth/', views.PublisherAuthRegistrationView.as_view()),
 
 ]

@@ -12,7 +12,8 @@ class PublisherAuth(models.Model):
     contactId = models.CharField(max_length=10, null=False, primary_key=True)
 
     # other details
-    password = models.CharField(max_length=255, null=True)
+    password = models.CharField(max_length=255, null=False)
+    registrationTimeStamp=models.DateTimeField(timezone.now, default=timezone.now)
 
 
 class Publisher(models.Model):
@@ -29,7 +30,7 @@ class Publisher(models.Model):
     dob = models.DateField(null=True)
     registrationDate = models.DateTimeField(null=False, default=timezone.now)
     address = models.CharField(max_length=255, null=True)
-    pincode = models.CharField(max_length=6, null=False)
+    pincode = models.CharField(max_length=6, null=True)
 
 
 class Shop(models.Model):
@@ -43,3 +44,4 @@ class Shop(models.Model):
     # other details
     name = models.CharField(max_length=64, null=False)
     pincode = models.CharField(max_length=6, null=False)
+    address=models.CharField(max_length=255, default='-')

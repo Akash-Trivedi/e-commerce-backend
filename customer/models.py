@@ -26,10 +26,10 @@ class Customer(models.Model):
     # other details
     firstName = models.CharField(max_length=64, null=False)
     lastName = models.CharField(max_length=64,  null=False)
-    contact = models.CharField(max_length=10, null=False)
     email = models.EmailField(max_length=255)
     dob = models.DateField()
     registrationDate = models.DateTimeField(default=timezone.now)
+    homeAddress = models.CharField(max_length=255, null=True, default='-')
     pincode = models.CharField(max_length=6, null=True)
 
 
@@ -50,7 +50,8 @@ class Feedback:
     feedbackId = models.AutoField(primary_key=True)
 
     # foreign key
-    customerId = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customerId = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True)
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     # other details
@@ -79,6 +80,6 @@ class OrderSummary(models.Model):
     paymentTime = models.DateTimeField(null=True)
     status = models.CharField(max_length=10, null=False, default='placed')
     pincode = models.IntegerField()
-    paymentOption = models.CharField(max_length=16)
+    paymentOption = models.CharField(max_length=16, null=False)
     paymentDone = models.BooleanField(default=False)
     paymentGateway = models.CharField(max_length=64, null=False)
