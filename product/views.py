@@ -4,11 +4,11 @@
 
 from .serializers import (ProductSerializer, TagSerializer)
 from .models import Product, Tag
-from django.views import View
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 
 # below is the alternative to redundant code
-class TagView(ListAPIView):
+# retrieve uses the pk(primary key for retrieval of the data)
+class TagView(ListCreateAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
