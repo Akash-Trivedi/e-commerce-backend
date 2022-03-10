@@ -33,18 +33,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
+
+    # user apps
+
     'backendroot',
     'product',
     'publisher',
     'customer',
-    
+    'api',
+    # third party
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -52,7 +59,23 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'backendroot.urls'
+# Middlewares
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ALLOWED_ORIGINS = (
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+)
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "POST",
+    "PUT",
+]
+
+
+ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
     {
@@ -79,9 +102,9 @@ WSGI_APPLICATION = 'backendroot.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'USERNAME': 'robot',
+        'PASSWORD': 'root',
         'NAME': 'ecommerce',
-        'USERNAME':'root',
-        'PASSWORD': '',
     }
 }
 
@@ -130,12 +153,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # did not knew the exact meaning until handling the post request
 # post request tries to modify the database, and unauthenticated,
 #  user must not be allowed to modify the data
+
+APPEND_SLASH = False
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
     ],
-        'DEFAULT_AUTHENTICATION_CLASSES': [
-            'rest_framework.authentication.SessionAuthentication',
-            'rest_framework.authentication.TokenAuthentication'
-        ]
 }
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.AllowAny'
+#     ],
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.TokenAuthentication'
+#     ]
+# }

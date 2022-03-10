@@ -2,18 +2,21 @@
 # usage: all the tables related to the publisher and its shops
 # calling function: -
 
+from dataclasses import fields
 from django.utils import timezone
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 
 # at the time of registration this table will fill first
+
 class PublisherAuth(models.Model):
     # primary key
     contactId = models.CharField(max_length=10, null=False, primary_key=True)
 
     # other details
     password = models.CharField(max_length=255, null=False)
-    registrationTimeStamp=models.DateTimeField(timezone.now, default=timezone.now)
+    registrationTimeStamp = models.DateTimeField(
+        timezone.now, default=timezone.now)
 
 
 class Publisher(models.Model):
@@ -44,4 +47,4 @@ class Shop(models.Model):
     # other details
     name = models.CharField(max_length=64, null=False)
     pincode = models.CharField(max_length=6, null=False)
-    address=models.CharField(max_length=255, default='-')
+    address = models.CharField(max_length=255, default='-')

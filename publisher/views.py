@@ -2,18 +2,25 @@
 # # usage:
 # # calling function:
 
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views import View
+from urllib import response
 from publisher.serializers import PublishAuthSerializer, ShopSerializer, PublisherSerializer
 from . models import PublisherAuth, Shop, Publisher
-from rest_framework.parsers import JSONParser
 from rest_framework.generics import ListAPIView
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED, HTTP_500_INTERNAL_SERVER_ERROR
 
 
-class PublisherAuthRegistrationView(ListAPIView):
-    queryset = PublisherAuth.objects.all()
-    serializer_class = PublishAuthSerializer
+@api_view(['POST'])
+def registerPublisher(request):
+    try:
+        instance = PublishAuthSerializer(request.data)
+        if instance.is_valid():
+            instance.save()
+        return Response(status=HTTP_201_CREATED)
+    except:
+        return Response(status=HTTP_500_INTERNAL_SERVER_ERROR)
+
 # class PublisherAuthRegistration(APIView):
 #     def post(self, request):
 #         # Permission checks are always run at the very start of the view,

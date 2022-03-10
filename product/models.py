@@ -34,7 +34,7 @@ class Tag(models.Model):
     tagId = models.AutoField(primary_key=True)
 
     # other details
-    tagName = models.CharField(choices=tagChoices, max_length=64, null=False)
+    tagName = models.CharField(unique=True, choices=tagChoices, max_length=64, null=False)
 
     def __str__(self):
         return self.tagName

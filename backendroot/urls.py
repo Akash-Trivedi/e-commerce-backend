@@ -7,12 +7,9 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.test),
-    path('customer/', include('customer.urls')),
-    path('admin/', admin.site.urls),
     path('product/', include('product.urls')),
     path('publisher/', include('publisher.urls')),
-    path('api-auth/', include('rest_framework.urls')),
+    path('customer/', include('customer.urls')),    
 ]
 # path('api-auth/', include('rest_framework.urls', namespace='restFramework')),
 # path('api-auth/', include('rest_framework.urls')),

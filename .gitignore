@@ -7,8 +7,10 @@ __pycache__/
 *.so
 
 #custom
-backendroot/e-commerce-backend-env/
-.idea
+ecommerce-env/
+.idea/
+.vscode/
+data.html
 
 # Distribution / packaging
 .Python
