@@ -2,12 +2,14 @@
 # usage: all the tables related to the publisher and its shops
 # calling function: -
 
-from dataclasses import fields
+from email.policy import default
+import ipaddress
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 # at the time of registration this table will fill first
+
 
 class PublisherAuth(models.Model):
     # primary key
@@ -15,8 +17,10 @@ class PublisherAuth(models.Model):
 
     # other details
     password = models.CharField(max_length=255, null=False)
-    registrationTimeStamp = models.DateTimeField(
-        timezone.now, default=timezone.now)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
+    registrationDate = models.DateTimeField(default=timezone.now)
 
 
 class Publisher(models.Model):
@@ -31,9 +35,12 @@ class Publisher(models.Model):
     lastName = models.CharField(max_length=64, null=True)
     email = models.EmailField(max_length=255, null=True)
     dob = models.DateField(null=True)
-    registrationDate = models.DateTimeField(null=False, default=timezone.now)
     address = models.CharField(max_length=255, null=True)
     pincode = models.CharField(max_length=6, null=True)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
+    registrationDate = models.DateTimeField(default=timezone.now)
 
 
 class Shop(models.Model):
@@ -48,3 +55,7 @@ class Shop(models.Model):
     name = models.CharField(max_length=64, null=False)
     pincode = models.CharField(max_length=6, null=False)
     address = models.CharField(max_length=255, default='-')
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
+    registrationDate = models.DateTimeField(default=timezone.now)

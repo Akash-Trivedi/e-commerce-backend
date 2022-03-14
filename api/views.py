@@ -1,45 +1,32 @@
+# author: akash trivedi
+# date-created: 10-march-2022
+# functionality: conatins the views related to utility for the website like sending otp
+# caller: api\urls.py
+
 import random
-from django.http import JsonResponse
 from rest_framework.generics import CreateAPIView
-
+from rest_framework.response import Response
 from publisher.serializers import PublishAuthSerializer
+from publisher.models import PublisherAuth
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 
-class RegisterPublisher(CreateAPIView):
-    """
-    this view will handle the post request for submission of new publisher.
-    """
-    serializer_class = PublishAuthSerializer
-
-
-def registerCustomer(request):
-    pass
-
-
-def registerPublisher(request):
-    request.auth
-    request.user
-    if request.method == 'POST':
-        result = {
-            "response": "ok"
-        }
-        return JsonResponse(result)
-
-
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
 def randomOtp(request, contactNumber):
     try:
-        if request.method == "GET":
-            otp = random.randrange(100000, 999999)
-            print(f'otp for {contactNumber} is {otp}')
-            context = {
-                "result": otp
-            }
-            return JsonResponse(context)
-        else:
-            context = {
-                "result": "error"
-            }
-            return JsonResponse(context)
-    except:
-        return
-#
+        # checks if the number already exists
+        user = PublisherAuth.objects.filter(contactId=contactNumber).get()
+        return Response(status=status.HTTP_409_CONFLICT)
+
+    except PublisherAuth.DoesNotExist:
+        # can be improved
+        otp = random.randrange(100000, 999999)
+        # below goes in terminal of the server
+        print(f'otp for {contactNumber} is {otp}')
+        context = {
+            "otpFromServer": otp
+        }
+        return Response(data=context, status=status.HTTP_200_OK)

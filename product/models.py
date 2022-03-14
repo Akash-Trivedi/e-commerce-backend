@@ -4,6 +4,8 @@
 
 from django.db import models
 from publisher.models import Publisher
+from django.utils import timezone
+
 
 tagChoices = [
     ('Electronics', 'Electronics'),
@@ -34,7 +36,8 @@ class Tag(models.Model):
     tagId = models.AutoField(primary_key=True)
 
     # other details
-    tagName = models.CharField(unique=True, choices=tagChoices, max_length=64, null=False)
+    tagName = models.CharField(
+        unique=True, choices=tagChoices, max_length=64, null=False)
 
     def __str__(self):
         return self.tagName
@@ -57,5 +60,8 @@ class Product(models.Model):
     price = models.FloatField(null=False)
     size = models.CharField(max_length=8, null=True, default='-')
     color = models.CharField(max_length=32, null=False)
-    discount = models.IntegerField(default=0, null=True)
+    discount = models.IntegerField(default=0, null=False)
     edition = models.CharField(max_length=32, default='-', null=True)
+    feedBackValue = models.FloatField(null=False, default=0.0)
+    totalFeedbacks = models.IntegerField(null=False, default=0)
+    timeStamp = models.DateTimeField(default=timezone.now)

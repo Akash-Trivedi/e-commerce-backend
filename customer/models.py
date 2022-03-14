@@ -2,9 +2,11 @@
 # usage: all the tables related to the customer and its related data
 # calling function: -
 
+from ipaddress import AddressValueError
 from django.db import models
 from django.utils import timezone
 from product.models import Product
+
 
 
 class CustomerAuth(models.Model):
@@ -13,6 +15,10 @@ class CustomerAuth(models.Model):
 
     # other details
     password = models.CharField(max_length=255, null=False)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
+    registrationDate = models.DateTimeField(default=timezone.now)
 
 
 class Customer(models.Model):
@@ -28,9 +34,12 @@ class Customer(models.Model):
     lastName = models.CharField(max_length=64,  null=False)
     email = models.EmailField(max_length=255)
     dob = models.DateField()
-    registrationDate = models.DateTimeField(default=timezone.now)
     homeAddress = models.CharField(max_length=255, null=True, default='-')
     pincode = models.CharField(max_length=6, null=True)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
+    registrationDate = models.DateTimeField(default=timezone.now)
 
 
 class Address(models.Model):
@@ -41,11 +50,12 @@ class Address(models.Model):
     customerId = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     # other details
-    address = models.CharField(max_length=255)
+    AddressValueError = models.CharField(max_length=255, default='-')
     pincode = models.CharField(max_length=6, null=False)
+    registrationDate = models.DateTimeField(default=timezone.now)
 
 
-class Feedback:
+class Feedback(models.Model):
     # primary key
     feedbackId = models.AutoField(primary_key=True)
 
@@ -58,6 +68,9 @@ class Feedback:
     starValue = models.IntegerField(null=False)
     timeStamp = models.DateTimeField(default=timezone.now)
     review = models.TextField(max_length=600)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')
 
 
 class OrderSummary(models.Model):
@@ -83,3 +96,6 @@ class OrderSummary(models.Model):
     paymentOption = models.CharField(max_length=16, null=False)
     paymentDone = models.BooleanField(default=False)
     paymentGateway = models.CharField(max_length=64, null=False)
+    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
+    browser = models.CharField(
+        max_length=255, null=False, default='localhost:chrome')

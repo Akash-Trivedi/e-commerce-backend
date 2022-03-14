@@ -4,66 +4,89 @@
 
 from .serializers import (ProductSerializer, TagSerializer)
 from .models import Product, Tag
-from rest_framework.generics import ListAPIView, ListCreateAPIView
 
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.request import Request
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 # below is the alternative to redundant code
 # retrieve uses the pk(primary key for retrieval of the data)
-class TagView(ListCreateAPIView):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
 
 
-# class TagView(View):
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def singleProductView(request, pk):
+    # also get the feedback related to this product
+    if request.method == 'GET':
+        try:
+            singleInstance = Product.objects.get(productId=pk)
+            serializedData = ProductSerializer(
+                singleInstance, many=False)
+            return Response(data=serializedData.data)
+        except Product.DoesNotExist:
+            # for if the resulting query set is empty
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-#     def get(self, request):
-#         try:
-#             tagList = Tag.objects.all()
-#         except ValueError: return HttpResponse("<h1>No Tags !</h1>")
-#         except: return HttpResponse("<h1>Server Encountered Some</h1>")
-
-#         # serialize the instance array and return binary output
-#         serializedTag = TagSerializer(tagList, many=True)
-#         return JsonResponse(serializedTag.data, safe=False, status=status.HTTP_200_OK)
-
-class ProductView(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-
-# class ProductView(View):
-#     # default pincode=website owner
-
-#     def get(self, request, pincode='208012'):
-#         # get the products based on location
-#         # pincode to be send by the browser in get request
-
-#         try:
-#             if 'pincode' in request.GET:
-#                 pincode = request.GET['pincode']
-#             productInstanceList = Product.objects.all()
-#             productSerializedData = ProductSerializer(
-#                 productInstanceList, many=True)
-
-#         except ValueError:
-#             return HttpResponse("<h1>content not found</h1>")
-#         except:
-#             return HttpResponse("<h1>content not found</h1>")
-#         else:
-#             return JsonResponse(productSerializedData.data, safe=False)
-
-#     def post(self, request):
-#         self.put(request)
-
-#     def put(self, request):
-#         jsonData = JSONParser().parse(request)
-#         productObject = ProductSerializer(data=jsonData)
-#         if productObject.is_valid():
-#             productObject.save()
-
-#     def delete(self, request):
-#         pass
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def tagListView(request):
+    if request.method == 'GET':
+        try:
+            tagInstanceList = Tag.objects.all()
+            serializedData = TagSerializer(
+                tagInstanceList, many=True)
+            return Response(data=serializedData.data)
+        except Tag.DoesNotExist:
+            # for if the resulting query set is empty
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# class ProductRegister(View):
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def productListView(request, pincode='208012'):
+    if request.method == 'GET':
+        try:
+            productInstanceList = Product.objects.all()
+            serializedData = ProductSerializer(
+                productInstanceList, many=True)
+            return Response(data=serializedData.data)
+        except Product.DoesNotExist:
+            # for if the resulting query set is empty
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            print(Exception.__cause__)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-#     def post(self, request):
-#         request.data
+
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def productRegisterView(request):
+    if request.method == 'POST':
+        try:
+            # checks if the number already exists
+            contactNumber = request.data['contactId']
+            user = CustomerAuth.objects.filter(contactId=contactNumber).get()
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        except CustomerAuth.DoesNotExist:
+            instance = CustomerAuthSerializer(data=request.data)
+            if instance.is_valid():
+                instance.save()
+            else:
+                return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

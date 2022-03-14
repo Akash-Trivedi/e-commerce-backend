@@ -1,86 +1,80 @@
 # # date-created: 17-feb-2022
 # # usage:
 # # calling function:
-
-from urllib import response
+import publisher
 from publisher.serializers import PublishAuthSerializer, ShopSerializer, PublisherSerializer
 from . models import PublisherAuth, Shop, Publisher
 from rest_framework.generics import ListAPIView
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_500_INTERNAL_SERVER_ERROR
+from rest_framework import status
+from rest_framework.request import Request
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
+
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def publisherOrderListView(request):
+    if request.method == 'GET':
+        try:
+            publisherInstanceList = Publisher.objects.all()
+            serializedData = PublisherSerializer(
+                publisherInstanceList, many=True)
+            return Response(data=serializedData.data)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
-def registerPublisher(request):
-    try:
-        instance = PublishAuthSerializer(request.data)
-        if instance.is_valid():
-            instance.save()
-        return Response(status=HTTP_201_CREATED)
-    except:
-        return Response(status=HTTP_500_INTERNAL_SERVER_ERROR)
+def registerPublisherView(request):
+    if request.method == 'POST':
+        try:
+            # checks if the number already exists
+            contactNumber = request.data['contactId']
+            user = PublisherAuth.objects.filter(contactId=contactNumber).get()
+            return Response(status=status.HTTP_409_CONFLICT)
 
-# class PublisherAuthRegistration(APIView):
-#     def post(self, request):
-#         # Permission checks are always run at the very start of the view,
-#         # before any other code is allowed to proceed
-#         try:
-#             serializedUserData = PublishAuthSerializer()
-#             print(serializedUserData)
-#             if serializedUserData.is_valid():
-#                 serializedUserData.save()
-#                 return render(request, 'publisher/success.html')
-#             else: return render(request, 'publisher/invalid.html')
-#         except:
-#             return render(request, 'publisher/error.html')
-#         else: return render(request, 'backendroot/test.html')
+        except PublisherAuth.DoesNotExist:
+            instance = PublishAuthSerializer(data=request.data)
+            if instance.is_valid():
+                instance.save()
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# class PublisherRegistration(View):
-#     def get(self, request):
-#         pass
-
-#     def post(self, request):
-#         # on signup, get contact for existing user
-#         # serialize the request object to PublisherAuth
-#         jsonData = JSONParser().parse(request)
-#         # assume single json object's first parameter= contact
-#         contact = jsonData['contact']
-#         if PublisherAuth.objects.get(pk=contact):
-#             return JsonResponse(jsonData)
-#         else:
-#             PublisherAuth(contact=contact)
-class PublisherView(ListAPIView):
-    queryset = Publisher.objects.all()
-    serializer_class = PublisherSerializer
-
-# class PublisherView(View):
-#     def get(self, request):
-#         try:
-#             if 'publisher-pincode' in request.GET:
-#                 publishersList = Publisher.objects.filter(
-#                     pincode=request.GET['publisher-pincode'])
-#             else:
-#                 publishersList = Publisher.objects.all()
-#             publishersSerializedData = PublisherSerializer(
-#                 publishersList, many=True)
-#         except:
-#             print('pincode not found')
-#             return render(request, 'publisher/error.html', {'error': Exception()})
-#         else:
-#             return JsonResponse(publishersSerializedData.data, safe=False)
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def publisherListView(request, pincode='208011'):
+    if request.method == 'GET':
+        try:
+            publisherInstanceList = Publisher.objects.get(pincode=pincode)
+            serializedData = PublisherSerializer(
+                publisherInstanceList)
+            return Response(data=serializedData.data)
+        except Publisher.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ShopView(ListAPIView):
-    queryset = Shop.objects.all()
-    serializer_class = ShopSerializer
-# class ShopView(View):
-#     def get(self, request):
-#         try:
-#             shopsList = Shop.objects.all()
-#             shopsSerializedData = ShopSerializer(shopsList, many=True)
-#         except ValueError:
-#             pass
-#         else:
-#             return JsonResponse(shopsSerializedData.data, safe=False)
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def listShopView(request, pincode='208011'):
+    if request.method == 'GET':
+        try:
+            publisherInstanceList = Shop.objects.get(pincode=pincode)
+            serializedData = PublisherSerializer(
+                publisherInstanceList, many=True)
+            return Response(data=serializedData.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

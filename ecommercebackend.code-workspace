@@ -9,7 +9,6 @@
         "zenMode.hideTabs": false,
         "editor.fontSize": 20,
         "editor.minimap.enabled": false,
-        "editor.tabSize": 4,
         "workbench.editor.showTabs": true,
         "workbench.editor.languageDetection": true,
         "terminal.integrated.fontSize": 18,
@@ -32,6 +31,5 @@
         "[python]": {
             "editor.defaultFormatter": "ms-python.python"
         },
-        "editor.wordWrapColumn": 90,
-        "editor.detectIndentation": true
+        "editor.wordWrapColumn": 90
 }}

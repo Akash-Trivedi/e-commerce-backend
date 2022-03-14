@@ -9,7 +9,7 @@ from . import views
 # passing the values from url can be handeled and values are passed to views
 
 urlpatterns = [
-    path('tags-all/', views.TagView.as_view()),
-    path('products-all/<int:pincode>', views.ProductView.as_view()),
-    path('registration/<int:pubsliherId>/', views.ProductView.as_view()),
+    path('tags/list-all/', views.tagListView),
+    path('list-all/<slug:pincode>/', views.productListView),
+    path('<int:pk>/', views.singleProductView),
 ]
