@@ -16,4 +16,5 @@ urlpatterns = [
     # handle the new publisher registration
     path('register/', views.registerPublisherView),
     path('order-history/', views.publisherOrderListView),
+    path('login/', views.publisherLogin),
 ]

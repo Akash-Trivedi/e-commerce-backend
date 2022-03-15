@@ -3,9 +3,8 @@
 # calling function:
 
 from django.db import models
-from publisher.models import Publisher
 from django.utils import timezone
-
+from users.models import LocalUser
 
 tagChoices = [
     ('Electronics', 'Electronics'),
@@ -49,8 +48,8 @@ class Product(models.Model):
 
     # foreign keys
     tagId = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
-    publisherId = models.ForeignKey(
-        Publisher, on_delete=models.CASCADE)
+    username = models.ForeignKey(
+        LocalUser, on_delete=models.CASCADE, related_name='publisher_product')
 
     # other details
     name = models.CharField(max_length=64, null=False)

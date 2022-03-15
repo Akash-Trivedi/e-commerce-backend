@@ -7,7 +7,6 @@ from .models import Product, Tag
 
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 # below is the alternative to redundant code
 # retrieve uses the pk(primary key for retrieval of the data)
@@ -67,26 +66,11 @@ def productListView(request, pincode='208012'):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def productRegisterView(request):
     if request.method == 'POST':
-        try:
-            # checks if the number already exists
-            contactNumber = request.data['contactId']
-            user = CustomerAuth.objects.filter(contactId=contactNumber).get()
-            return Response(status=status.HTTP_409_CONFLICT)
-
-        except CustomerAuth.DoesNotExist:
-            instance = CustomerAuthSerializer(data=request.data)
-            if instance.is_valid():
-                instance.save()
-            else:
-                return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-            return Response(status=status.HTTP_201_CREATED)
-
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+       pass
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)

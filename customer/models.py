@@ -2,44 +2,10 @@
 # usage: all the tables related to the customer and its related data
 # calling function: -
 
-from ipaddress import AddressValueError
 from django.db import models
 from django.utils import timezone
 from product.models import Product
-
-
-
-class CustomerAuth(models.Model):
-    # primary key
-    contactId = models.CharField(max_length=10, null=False)
-
-    # other details
-    password = models.CharField(max_length=255, null=False)
-    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
-    browser = models.CharField(
-        max_length=255, null=False, default='localhost:chrome')
-    registrationDate = models.DateTimeField(default=timezone.now)
-
-
-class Customer(models.Model):
-    # primary key
-    customerId = models.AutoField(primary_key=True)
-
-    # foreign key
-    contactId = models.ForeignKey(
-        CustomerAuth, on_delete=models.CASCADE)
-
-    # other details
-    firstName = models.CharField(max_length=64, null=False)
-    lastName = models.CharField(max_length=64,  null=False)
-    email = models.EmailField(max_length=255)
-    dob = models.DateField()
-    homeAddress = models.CharField(max_length=255, null=True, default='-')
-    pincode = models.CharField(max_length=6, null=True)
-    ipAddress = models.GenericIPAddressField(default='127.0.0.1')
-    browser = models.CharField(
-        max_length=255, null=False, default='localhost:chrome')
-    registrationDate = models.DateTimeField(default=timezone.now)
+from users.models import LocalUser
 
 
 class Address(models.Model):
@@ -47,7 +13,8 @@ class Address(models.Model):
     addressId = models.AutoField(primary_key=True)
 
     # foriegn key
-    customerId = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    username = models.ForeignKey(
+        LocalUser, on_delete=models.CASCADE, related_name='user_address')
 
     # other details
     AddressValueError = models.CharField(max_length=255, default='-')
@@ -60,8 +27,8 @@ class Feedback(models.Model):
     feedbackId = models.AutoField(primary_key=True)
 
     # foreign key
-    customerId = models.ForeignKey(
-        Customer, on_delete=models.SET_NULL, null=True)
+    username = models.ForeignKey(
+        LocalUser, on_delete=models.SET_NULL, null=True, related_name='customer_feedback')
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     # other details
@@ -78,8 +45,8 @@ class OrderSummary(models.Model):
     orderId = models.AutoField(primary_key=True)
 
     # foreign key
-    customerId = models.ForeignKey(
-        Customer, on_delete=models.DO_NOTHING, null=True)
+    username = models.ForeignKey(
+        LocalUser, on_delete=models.DO_NOTHING, null=True, related_name='customer_order')
     addressId = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
 
     # unique key

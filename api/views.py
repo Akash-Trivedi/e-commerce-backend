@@ -4,12 +4,11 @@
 # caller: api\urls.py
 
 import random
-from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-from publisher.serializers import PublishAuthSerializer
-from publisher.models import PublisherAuth
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
+from users.models import LocalUser
 
 
 @api_view(['GET'])
@@ -18,10 +17,10 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 def randomOtp(request, contactNumber):
     try:
         # checks if the number already exists
-        user = PublisherAuth.objects.filter(contactId=contactNumber).get()
+        user = LocalUser.objects.filter(username=contactNumber).get()
         return Response(status=status.HTTP_409_CONFLICT)
 
-    except PublisherAuth.DoesNotExist:
+    except Publisher.DoesNotExist:
         # can be improved
         otp = random.randrange(100000, 999999)
         # below goes in terminal of the server

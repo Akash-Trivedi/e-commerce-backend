@@ -4,9 +4,10 @@
 # caller: customer\urls.py
 
 
-from .models import (Customer, CustomerAuth, Feedback)
-from .serializers import (
-    CustomerSerializer, CustomerAuthSerializer, CustomerOrderSummarySerializer, CustomerFeedbackSerializer)
+from users.models import LocalUser
+from .models import Feedback
+from .serializers import CustomerFeedbackSerializer, CustomerOrderSummarySerializer
+from users.serializers import LocalUserSerializer
 
 from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes)
@@ -20,8 +21,8 @@ from rest_framework import status
 def customerListView(request):
     if request.method == 'GET':
         try:
-            publisherInstanceList = Customer.objects.all()
-            serializedData = CustomerSerializer(
+            publisherInstanceList = LocalUser.objects.all()
+            serializedData = LocalUserSerializer(
                 publisherInstanceList, many=True)
             print(serializedData.data)
             return Response(data=serializedData.data, status=status.HTTP_200_OK)
@@ -55,7 +56,7 @@ def customerOrderSummaryView(request):
     if request.method == 'GET':
         try:
             feedbackInstanceList = Feedback.objects.all()
-            serializedData = CustomerFeedbackSerializer(
+            serializedData = CustomerOrderSummarySerializer(
                 feedbackInstanceList, many=True)
             print(serializedData.data)
             return Response(data=serializedData.data, status=status.HTTP_200_OK)
@@ -73,10 +74,10 @@ def customerRegistrationView(request):
         try:
             # checks if the number already exists
             contactNumber = request.data['contactId']
-            user = CustomerAuth.objects.filter(contactId=contactNumber).get()
+            user = LocalUser.objects.filter(contactId=contactNumber).get()
             return Response(status=status.HTTP_409_CONFLICT)
 
-        except CustomerAuth.DoesNotExist:
+        except LocalUser.DoesNotExist:
             instance = CustomerAuthSerializer(data=request.data)
             if instance.is_valid():
                 instance.save()
