@@ -12,7 +12,7 @@ class ShopSerializer(serializers.ModelSerializer):
     '''
     class Meta:
         '''
-        this class is tells the serializer to return the list of fields equal to fields attribute given and model equal to model provided
+        this class tells the serializer to return the list of fields equal to fields attribute given and model equal to model provided
         '''
         model = Shop
         fields = '__all__'

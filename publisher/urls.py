@@ -8,13 +8,15 @@ from . import views
 urlpatterns = [
 
     # for listing all the publishers in the area by pincode
-    path('list-all/<slug:pincode>', views.publisherListView),
+    path('list-all/', views.publisherListView),
     
     # list all the shops by pincode
-    path('shop/list-all/<slug:pincode>', views.listShopView),
+    path('all-info/', views.listAllInfoView),
+    path('shop/add/', views.addShopView),
+    path('product/add/', views.addProductView),
 
     # handle the new publisher registration
-    path('register/', views.registerPublisherView),
+    path('signup/', views.publisherSignupView),
     path('order-history/', views.publisherOrderListView),
     path('login/', views.publisherLogin),
 ]

@@ -5,6 +5,7 @@
 from django.db import models
 from django.utils import timezone
 from users.models import LocalUser
+from publisher.models import Shop
 
 tagChoices = [
     ('Electronics', 'Electronics'),
@@ -17,6 +18,7 @@ tagChoices = [
     ('Gaming Accessories', 'Gaming Accessories'),
     ('Mobile Phone Accessories', 'Mobile Phone Accessories'),
     ('Travel', 'Travel'),
+    ('Electronics and Communications', 'Electronics and Communications'),
 ]
 
 size = {
@@ -38,6 +40,8 @@ class Tag(models.Model):
     tagName = models.CharField(
         unique=True, choices=tagChoices, max_length=64, null=False)
 
+    joinDate=models.DateTimeField(default=timezone.now)
+    
     def __str__(self):
         return self.tagName
 
@@ -47,9 +51,9 @@ class Product(models.Model):
     productId = models.AutoField(primary_key=True)
 
     # foreign keys
-    tagId = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
-    username = models.ForeignKey(
-        LocalUser, on_delete=models.CASCADE, related_name='publisher_product')
+    tagId = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True)
+    shopId = models.ForeignKey(
+        Shop, on_delete=models.CASCADE, related_name='publisher_product')
 
     # other details
     name = models.CharField(max_length=64, null=False)
@@ -57,10 +61,10 @@ class Product(models.Model):
     description = models.CharField(max_length=255, null=False)
     stock = models.IntegerField(null=False)
     price = models.FloatField(null=False)
-    size = models.CharField(max_length=8, null=True, default='-')
+    size = models.CharField(max_length=8, null=True, default='abstract')
     color = models.CharField(max_length=32, null=False)
-    discount = models.IntegerField(default=0, null=False)
+    discount = models.IntegerField(default=0, null=True)
     edition = models.CharField(max_length=32, default='-', null=True)
-    feedBackValue = models.FloatField(null=False, default=0.0)
-    totalFeedbacks = models.IntegerField(null=False, default=0)
-    timeStamp = models.DateTimeField(default=timezone.now)
+    feedBackValue = models.IntegerField(null=True, default=0)
+    totalFeedbacks = models.IntegerField(null=True, default=0)
+    timeStamp = models.DateTimeField(null=False, default=timezone.now)

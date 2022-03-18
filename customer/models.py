@@ -13,7 +13,7 @@ class Address(models.Model):
     addressId = models.AutoField(primary_key=True)
 
     # foriegn key
-    username = models.ForeignKey(
+    id = models.ForeignKey(
         LocalUser, on_delete=models.CASCADE, related_name='user_address')
 
     # other details
@@ -27,7 +27,7 @@ class Feedback(models.Model):
     feedbackId = models.AutoField(primary_key=True)
 
     # foreign key
-    username = models.ForeignKey(
+    id = models.ForeignKey(
         LocalUser, on_delete=models.SET_NULL, null=True, related_name='customer_feedback')
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
 
@@ -45,7 +45,7 @@ class OrderSummary(models.Model):
     orderId = models.AutoField(primary_key=True)
 
     # foreign key
-    username = models.ForeignKey(
+    id = models.ForeignKey(
         LocalUser, on_delete=models.DO_NOTHING, null=True, related_name='customer_order')
     addressId = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
 
