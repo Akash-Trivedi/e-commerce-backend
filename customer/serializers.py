@@ -8,7 +8,7 @@ class CustomerOrderSummarySerializer(ModelSerializer):
         fields = '__all__'
 
 
-class CustomerFeedbackSerializer(ModelSerializer):
+class FeedbackSerializer(ModelSerializer):
     class Meta():
         model = Feedback
         fields = '__all__'

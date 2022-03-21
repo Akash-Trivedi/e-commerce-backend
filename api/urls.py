@@ -1,11 +1,11 @@
 from django.urls import path, include
 from . import views
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 urlpatterns = [
     path('api/', include('backendroot.urls')),
     path('api/otp/<slug:contactNumber>/', views.randomOtp, name='random_otp'),
-    path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # below is the customized version of the views that will return the fields that we want and not the default specified
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

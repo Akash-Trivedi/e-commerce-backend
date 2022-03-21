@@ -2,6 +2,10 @@
 # usage: return the json string after querying the database
 # calling function/module: product/urls.py
 
+from customer.models import Feedback
+from customer.serializers import FeedbackSerializer
+from publisher.models import Shop
+from publisher.serializers import ShopSerializer
 from .serializers import (ProductSerializer, TagSerializer)
 from .models import Product, Tag
 
@@ -28,6 +32,7 @@ def singleProductView(request, pk):
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['GET'])
 @permission_classes([])
@@ -71,6 +76,30 @@ def productListView(request, pincode='208012'):
 @authentication_classes([])
 def productRegisterView(request):
     if request.method == 'POST':
-       pass
+        pass
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+# authentication will be required
+def feedbackListView(request):
+    if request.method == 'GET':
+        try:
+            shopInstanceList = Shop.objects.all().filter(id=2)
+            serializedShopData = ShopSerializer(
+                instance=shopInstanceList, many=True).data
+            print(serializedShopData)
+            feedbackInstanceList = Feedback.objects.all().filter(shopId='')
+            serializedFeedbackData = FeedbackSerializer(
+                feedbackInstanceList, many=True)
+            return Response(data=serializedFeedbackData.data)
+        except Product.DoesNotExist:
+            # for if the resulting query set is empty
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            print(Exception.__cause__)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    return Response(data={}, status=status.HTTP_200_OK)

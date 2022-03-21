@@ -6,7 +6,7 @@ from django.db import models
 from django.utils import timezone
 from product.models import Product
 from users.models import LocalUser
-
+from publisher.models import Shop
 
 class Address(models.Model):
     # primary key
@@ -30,6 +30,7 @@ class Feedback(models.Model):
     id = models.ForeignKey(
         LocalUser, on_delete=models.SET_NULL, null=True, related_name='customer_feedback')
     productId = models.ForeignKey(Product, on_delete=models.CASCADE)
+    shopId = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     # other details
     starValue = models.IntegerField(null=False)

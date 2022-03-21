@@ -6,7 +6,7 @@
 
 from users.models import LocalUser
 from .models import Feedback
-from .serializers import CustomerFeedbackSerializer, CustomerOrderSummarySerializer
+from .serializers import FeedbackSerializer, CustomerOrderSummarySerializer
 from users.serializers import LocalUserSerializer
 
 from rest_framework.decorators import (
@@ -39,7 +39,7 @@ def customerFeedbackView(request):
     if request.method == 'GET':
         try:
             feedbackInstanceList = Feedback.objects.all()
-            serializedData = CustomerFeedbackSerializer(
+            serializedData = FeedbackSerializer(
                 feedbackInstanceList, many=True)
             print(serializedData.data)
             return Response(data=serializedData.data, status=status.HTTP_200_OK)

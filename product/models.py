@@ -52,15 +52,14 @@ class Product(models.Model):
 
     # foreign keys
     tagId = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True)
-    shopId = models.ForeignKey(
-        Shop, on_delete=models.CASCADE, related_name='publisher_product')
+    shopId = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='publisher_product')
 
     # other details
     name = models.CharField(max_length=64, null=False)
     companyName = models.CharField(max_length=64, null=False)
     description = models.CharField(max_length=255, null=False)
     stock = models.IntegerField(null=False)
-    price = models.FloatField(null=False)
+    price = models.IntegerField(null=False)
     size = models.CharField(max_length=8, null=True, default='abstract')
     color = models.CharField(max_length=32, null=False)
     discount = models.IntegerField(default=0, null=True)

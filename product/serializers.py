@@ -3,13 +3,14 @@
 # calling function/module: product/views.py
 
 from rest_framework import serializers
-from .models import  Product, Tag
+from .models import Product, Tag
+from publisher.models import Shop
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('tagId', 'tagName')
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -17,4 +18,8 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
-
+        extra_kwargs = {
+            'timeStamp': {
+                'write_only': True
+            }
+        }
