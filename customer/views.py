@@ -10,16 +10,13 @@ from .serializers import FeedbackSerializer, CustomerOrderSummarySerializer
 from users.serializers import LocalUserSerializer
 
 from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes)
+    api_view, permission_classes, authentication_classes, APIView)
 from rest_framework.response import Response
 from rest_framework import status
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def customerListView(request):
-    if request.method == 'GET':
+class CustomerListView(APIView):
+    def get(self, request):
         try:
             publisherInstanceList = LocalUser.objects.all()
             serializedData = LocalUserSerializer(
@@ -28,32 +25,26 @@ def customerListView(request):
             return Response(data=serializedData.data, status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def customerFeedbackView(request):
-    if request.method == 'GET':
+class CustomerFeedbackView(APIView):
+    def get(self, request):
         try:
+            data = {}
             feedbackInstanceList = Feedback.objects.all()
             serializedData = FeedbackSerializer(
                 feedbackInstanceList, many=True)
-            print(serializedData.data)
-            return Response(data=serializedData.data, status=status.HTTP_200_OK)
+            data['status'] = 200
+            data['payload'] = serializedData.data
+            return Response(data=data, status=status.HTTP_200_OK)
         except Feedback.DoesNotExists:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            data['status'] = 204
+            data['payload'] = []
+            return Response(data=data, status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def customerOrderSummaryView(request):
-    if request.method == 'GET':
+class CustomerOrderSummaryView(APIView):
+    def get(self, request):
         try:
             feedbackInstanceList = Feedback.objects.all()
             serializedData = CustomerOrderSummarySerializer(
@@ -62,15 +53,10 @@ def customerOrderSummaryView(request):
             return Response(data=serializedData.data, status=status.HTTP_200_OK)
         except Feedback.DoesNotExists:
             return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
-def customerRegistrationView(request):
-    if request.method == 'POST':
+class CustomerRegistrationView(APIView):
+    def post(self, request):
         try:
             # checks if the number already exists
             contactNumber = request.data['contactId']
@@ -78,7 +64,7 @@ def customerRegistrationView(request):
             return Response(status=status.HTTP_409_CONFLICT)
 
         except LocalUser.DoesNotExist:
-            instance = CustomerAuthSerializer(data=request.data)
+            instance = LocalUserSerializer(data=request.data)
             if instance.is_valid():
                 instance.save()
             else:
@@ -87,17 +73,12 @@ def customerRegistrationView(request):
 
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
-def customerUpdateView(request):
-    if request.method == 'POST':
+class CustomerUpdateView(APIView):
+    def post(self, request):
         try:
-            instance = CustomerAuthSerializer(data=request.data)
+            instance = LocalUserSerializer(data=request.data)
             if instance.is_valid():
                 instance.save()
                 return Response(status=status.HTTP_200_OK)
@@ -105,5 +86,3 @@ def customerUpdateView(request):
                 return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)

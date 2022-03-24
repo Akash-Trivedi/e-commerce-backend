@@ -22,9 +22,7 @@ class Shop(models.Model):
     city = models.CharField(max_length=64, null=False)
     state = models.CharField(max_length=64, null=False)
     sales = models.IntegerField(null=False, default=0)
-    ipAddress = models.GenericIPAddressField(default='127.0.0.1', null=False)
-    browser = models.CharField(
-        max_length=255, null=False, default='localhost:chrome')
+    productCount = models.IntegerField(null=False, default=0)
     registrationDate = models.DateTimeField(default=timezone.now)
 
 class OrderHistory(models.Model):

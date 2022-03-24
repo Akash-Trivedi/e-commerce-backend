@@ -1,8 +1,11 @@
 # # date-created: 17-feb-2022
 # # usage:
 # # calling function:
+from rest_framework_simplejwt.backends import TokenBackend
+from email.policy import HTTP
 from multiprocessing import AuthenticationError
 from os import stat
+from weakref import ref
 from product.models import Product, Tag
 from product.serializers import ProductSerializer
 from publisher.serializers import ShopSerializer
@@ -18,66 +21,49 @@ from users.serializers import LocalUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import AllowAny
 
 
 def p():
     print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
 
 
-def publisherOrderListView(request):
-    # orderHistory = {}
-    # try:
-    #     orders=
+class PublisherOrderListView(APIView):
     pass
 
 
 class PublisherSignupView(APIView):
-    permission_classes=()
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         p()
-        try:
-
-            formData = request.data
-            print(request.user)
-            if(LocalUser.objects.filter(
-                    username=formData['username'], isPublisher=True).exists()):
+        if request.data['username'] != '' and request.data['password'] != '':
+            try:
+                formData = request.data
+                user = LocalUser.objects.get(username=formData['username'])
                 return Response(data={'status': 409}, status=status.HTTP_409_CONFLICT)
-
-            formData.update({'isPublisher': True})
-            instance = LocalUserSerializer(data=formData)
-
-            if instance.is_valid():
-                print('1')
-                user = LocalUser.objects.filter(
-                    username=request.data['username'], isPublisher=True)
-                print('2')
-                refresh = RefreshToken.for_user(user=user)
-                print('3')
-                userId = LocalUser.objects.filter(
-                    username=request.data['username'], isPublisher=True)
-                print('4')
+            except LocalUser.DoesNotExist:
+                instance = LocalUserSerializer().create(formData)
+                newUser = LocalUser.objects.get(
+                    username=request.data['username'])
+                userSerilazedData = LocalUserSerializer(instance=newUser)
+                refresh = RefreshToken.for_user(newUser)
                 token = {
                     'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+                    'access': str(refresh.access_token)
                 }
-                print('5')
-                response = Response()
-                print('6')
-                response.set_cookie(key='pjwt', value=token, httponly=True)
-                print('7')
-                instance.save()
-                return response
-            else:
+                return Response(data={'status': 201, 'data': userSerilazedData.data, 'token': token}, status=status.HTTP_201_CREATED)
+
+            except Exception:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(data={status: 204}, status=status.HTTP_204_NO_CONTENT)
 
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-def publisherListView():
-    data = {}
+def publisherListView(id):
+    data = []
     try:
-        publisherInstanceList = LocalUser.objects.get(isPublisher=True, id=2)
+        publisherInstanceList = LocalUser.objects.get(isPublisher=True, id=id)
         serializedData = LocalUserSerializer(
             publisherInstanceList)
         data = serializedData.data
@@ -89,8 +75,8 @@ def publisherListView():
         return data
 
 
-def listShopView(publisherId=2):
-    data = {}
+def listShopView(publisherId):
+    data = []
     try:
         shopInstance = Shop.objects.filter(id_id=publisherId)
         serializedData = ShopSerializer(
@@ -105,31 +91,32 @@ def listShopView(publisherId=2):
         return data
 
 
-@api_view(['POST'])
-def publisherLogin(request):
-    if request.method == 'POST':
+class PublisherLogin(APIView):
+    permission_classes=(IsAuthenticated, )
+    authentication_classes = (JWTAuthentication, )
+
+    def post(self, request):
+        p()
+        print(request.user.id)
         try:
-            # checks if the number already exists
-            if request.data is not None:
-                contactNumber = request.data['username']
-                user = LocalUser.objects.get(username=contactNumber)
-                return Response(status=status.HTTP_200_OK)
+            exists = LocalUser.objects.filter(
+                username=request.data['username'], password=request.data['password'])
+            # then create cookei and add session id to it
+            data = {
+                'status': 200,
+                'data': publisherInfoView(request.user.id)
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
 
         except LocalUser.DoesNotExist:
-            instance = LocalUserSerializer(data=request.data)
-            if instance.is_valid():
-                instance.save()
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(data={'status': 404}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-def addShopView(request):
-    if request.method == 'POST':
+class AddShopView(APIView):
+    def post(self, request):
         print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
         try:
             formData = request.data
@@ -152,12 +139,10 @@ def addShopView(request):
 
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 def productListView(shopid=2):
-    data = {}
+    data = []
     try:
         shopInstance = Product.objects.filter(shopId_id=shopid)
         serializedData = ProductSerializer(
@@ -173,24 +158,21 @@ def productListView(shopid=2):
         return data
 
 
-def listAllInfoView():
+def publisherInfoView(id):
     data = {}
-    data['shops'] = listShopView()
-    data['publisherInfo'] = publisherListView()
+    data['shops'] = listShopView(id)
+    data['publisherInfo'] = publisherListView(id)
     data['products'] = productListView(2)
     data['totalSales'] = 0
     for shop in data['shops']:
-        print(shop)
         data['totalSales'] = shop['sales'] + data['totalSales']
     return data
 
 
-@api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
-def addProductView(request):
-    print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
-    if request.method == 'POST':
+class AddProductView(APIView):
+
+    def post(self, request):
+        print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
         data = {}
         try:
             productData = request.data
@@ -218,17 +200,16 @@ def addProductView(request):
 
         except Exception:
             return Response(data=data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-# authentication will be required
-def feedbackListView(request):
-    print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
-    if request.method == 'GET':
+class FeedbackListView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
         try:
-            shopInstanceList = Shop.objects.all().filter(id=2)
+            shopInstanceList = Shop.objects.all().filter(id=request.username)
             serializedShopData = ShopSerializer(
                 instance=shopInstanceList, many=True).data
             feedbackInstanceList = Feedback.objects.filter(
@@ -242,10 +223,14 @@ def feedbackListView(request):
         except Exception:
             print(Exception.__cause__)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class LogoutView(APIView):
-    def post(self, request):
-        pass
+class PublisherInfoView(APIView):
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        data = {
+            'status': 200,
+            'data': publisherInfoView(request.user.username)
+        }
+        return Response(data=data, status=status.HTTP_200_OK)

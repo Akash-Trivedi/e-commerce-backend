@@ -11,9 +11,14 @@ class LocalUser(AbstractUser):
 
     # other details
     dob = models.DateField(null=True)
-    address = models.CharField(max_length=255, null=True)
+    address = models.CharField(max_length=128, null=True)
     pincode = models.CharField(max_length=6, null=True)
+    city = models.CharField(max_length=64, null=True)
+    state = models.CharField(max_length=64, null=True)
     ipAddress = models.GenericIPAddressField(default='http://127.0.0.1')
     browser = models.CharField(
         max_length=255, null=False, default='localhost:chrome')
     isPublisher = models.BooleanField(null=False, default=False)
+
+    def __str__(self) -> str:
+        data = f'id {self.id}, username {self.username}, password {self.password}, is_superuser {self.is_superuser}'

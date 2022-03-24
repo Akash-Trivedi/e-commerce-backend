@@ -11,17 +11,11 @@ from .models import Product, Tag
 
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-# below is the alternative to redundant code
-# retrieve uses the pk(primary key for retrieval of the data)
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, APIView
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def singleProductView(request, pk):
-    # also get the feedback related to this product
-    if request.method == 'GET':
+class SingleProductView(APIView):
+    def get(self, request, pk):
         try:
             singleInstance = Product.objects.get(productId=pk)
             serializedData = ProductSerializer(
@@ -30,32 +24,21 @@ def singleProductView(request, pk):
         except Product.DoesNotExist:
             # for if the resulting query set is empty
             return Response(status=status.HTTP_404_NOT_FOUND)
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def tagListView(request):
-    if request.method == 'GET':
+class TagListView(APIView):
+    def get(self, request):
         try:
             tagInstanceList = Tag.objects.all()
             serializedData = TagSerializer(
                 tagInstanceList, many=True)
-            return Response(data=serializedData.data)
+            return Response(data=serializedData.data, status=status.HTTP_200_OK)
         except Tag.DoesNotExist:
-            # for if the resulting query set is empty
-            return Response(status=status.HTTP_404_NOT_FOUND)
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(data={}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
-def productListView(request, pincode='208012'):
-    if request.method == 'GET':
+class ProductListView(APIView):
+    def get(self, request, pincode=208012):
         try:
             productInstanceList = Product.objects.all()
             serializedData = ProductSerializer(
@@ -67,24 +50,15 @@ def productListView(request, pincode='208012'):
         except Exception:
             print(Exception.__cause__)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
-def productRegisterView(request):
-    if request.method == 'POST':
+class ProductRegisterView(APIView):
+    def post(self, request):
         pass
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-# authentication will be required
-def feedbackListView(request):
-    if request.method == 'GET':
+class FeedbackListView(APIView):
+    def get(self, request):
         try:
             shopInstanceList = Shop.objects.all().filter(id=2)
             serializedShopData = ShopSerializer(
@@ -100,6 +74,3 @@ def feedbackListView(request):
         except Exception:
             print(Exception.__cause__)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
-    return Response(data={}, status=status.HTTP_200_OK)

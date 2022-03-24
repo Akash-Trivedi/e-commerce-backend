@@ -8,6 +8,7 @@ from product.models import Product
 from users.models import LocalUser
 from publisher.models import Shop
 
+
 class Address(models.Model):
     # primary key
     addressId = models.AutoField(primary_key=True)
@@ -17,8 +18,10 @@ class Address(models.Model):
         LocalUser, on_delete=models.CASCADE, related_name='user_address')
 
     # other details
-    AddressValueError = models.CharField(max_length=255, default='-')
+    address = models.CharField(max_length=255, default='-')
     pincode = models.CharField(max_length=6, null=False)
+    city = models.CharField(max_length=64, null=True)
+    state = models.CharField(max_length=64, null=True)
     registrationDate = models.DateTimeField(default=timezone.now)
 
 
@@ -60,7 +63,7 @@ class OrderSummary(models.Model):
     orderDeliveryTime = models.DateTimeField(null=True)
     paymentTime = models.DateTimeField(null=True)
     status = models.CharField(max_length=10, null=False, default='placed')
-    pincode = models.IntegerField()
+    pincode = models.CharField(max_length=6, null=False)
     paymentOption = models.CharField(max_length=16, null=False)
     paymentDone = models.BooleanField(default=False)
     paymentGateway = models.CharField(max_length=64, null=False)
