@@ -17,3 +17,15 @@ class ShopSerializer(serializers.ModelSerializer):
         model = Shop
         fields = '__all__'
 
+    def create(self, validated_data, publisherId):
+        shop = Shop.objects.create(
+            name=validated_data['name'],
+            pincode=validated_data['pincode'],
+            address=validated_data['address'],
+            city=validated_data['city'],
+            state=validated_data['state'],
+            id_id=publisherId
+        )
+        shop.save()
+        print('new shop created!')
+        return shop

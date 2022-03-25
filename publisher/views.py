@@ -60,10 +60,11 @@ class PublisherSignupView(APIView):
             return Response(data={status: 204}, status=status.HTTP_204_NO_CONTENT)
 
 
-def publisherListView(id):
-    data = []
+def publisherInfoView(id=1):
+    print(f'publisherListView called for id={id}')
+    data = {}
     try:
-        publisherInstanceList = LocalUser.objects.get(isPublisher=True, id=id)
+        publisherInstanceList = LocalUser.objects.get(id=id)
         serializedData = LocalUserSerializer(
             publisherInstanceList)
         data = serializedData.data
@@ -76,12 +77,30 @@ def publisherListView(id):
 
 
 def listShopView(publisherId):
+    print(f'listShopView called for id={publisherId}')
     data = []
     try:
         shopInstance = Shop.objects.filter(id_id=publisherId)
         serializedData = ShopSerializer(
-            shopInstance, many=True)
-        # many equal to true returns array1?
+            instance=shopInstance, many=True)
+        data = serializedData.data
+    except Shop.DoesNotExist:
+        print('Shops does not exists')
+    except Exception:
+        print('Exception occured')
+    finally:
+        return data
+
+
+def feedackListView(publisherId):
+    print(f'feedbackListView called for shopId={publisherId}')
+
+    data = []
+    try:
+        shopInstance = Shop.objects.filter(id_id=publisherId)
+        serializedData = ShopSerializer(
+            instance=shopInstance, many=True)
+
         data = serializedData.data
     except Shop.DoesNotExist:
         print('Shops does not exists')
@@ -92,7 +111,7 @@ def listShopView(publisherId):
 
 
 class PublisherLogin(APIView):
-    permission_classes=(IsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     authentication_classes = (JWTAuthentication, )
 
     def post(self, request):
@@ -116,40 +135,44 @@ class PublisherLogin(APIView):
 
 
 class AddShopView(APIView):
+    authentication_classes = (JWTAuthentication,)
+
     def post(self, request):
-        print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
+        p()
+        print(f'AddShopView called for id={request.user.id}')
+        data = {
+            'status': 500,
+            'shops': []
+        }
         try:
             formData = request.data
-            # checks if the number already exists
             shop = Shop.objects.get(name=formData['name'])
-            return Response(status=status.HTTP_409_CONFLICT)
+            data['status'] = 409
 
         except Shop.DoesNotExist:
-            # add value True to isPublisher key of dictionary->formData
-            formData.update({'id': 2})
-            instance = ShopSerializer(data=formData)
-            if instance.is_valid():
-                instance.save()
-                shops = Shop.objects.filter(id_id=2)
-                data = ShopSerializer(instance=shops, many=True)
-
-                return Response(data=data.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print('shop is new!')
+            instance = ShopSerializer().create(
+                validated_data=formData, publisherId=request.user.id)
+            shopInstance = Shop.objects.filter(id_id=request.user.id)
+            data['shops'] = ShopSerializer(
+                instance=shopInstance, many=True).data
+            data['status'] = 201
 
         except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print('some error in AddShopView')
+
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
 
 
 def productListView(shopid=2):
+    print('productListView called')
     data = []
     try:
         shopInstance = Product.objects.filter(shopId_id=shopid)
         serializedData = ProductSerializer(
             shopInstance, many=True)
-        # many equal to true returns array1?
-        data = dict(serializedData.data)
-        print(data)
+        data = serializedData.data
     except Shop.DoesNotExist:
         print('Shops does not exists')
     except Exception:
@@ -158,11 +181,13 @@ def productListView(shopid=2):
         return data
 
 
-def publisherInfoView(id):
+def getAllPublisherInfo(id):
+    print(f'publisherInfoView called for id={id}')
     data = {}
     data['shops'] = listShopView(id)
-    data['publisherInfo'] = publisherListView(id)
-    data['products'] = productListView(2)
+    data['publisherInfo'] = publisherInfoView(id)
+    data['products'] = productListView(id)
+    data['feedbacks'] = []
     data['totalSales'] = 0
     for shop in data['shops']:
         data['totalSales'] = shop['sales'] + data['totalSales']
@@ -172,34 +197,32 @@ def publisherInfoView(id):
 class AddProductView(APIView):
 
     def post(self, request):
-        print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
-        data = {}
+        p()
+        print(f'AddProductView for id={request.user.id}')
+        data = {
+            'status': 500,
+        }
         try:
-            productData = request.data
-            # checks if the number already exists
-            shop = Product.objects.get(name=productData['name'])
-            return Response(status=status.HTTP_409_CONFLICT)
+            formData = request.data
+            product = Product.objects.get(name=formData['name'])
+            data['status'] = 409
+            return Response(data=data, status=status.HTTP_409_CONFLICT)
 
         except Product.DoesNotExist:
-            shopInstance = Shop.objects.get(shopId=1)
-            tagInstance = Tag.objects.get(tagId=11)
-            if shopInstance and tagInstance:
-                instance = Product.objects.create(
-                    name=productData['name'], companyName=productData['companyName'],
-                    description=productData['description'], stock=productData['stock'], price=productData['price'], size=productData[
-                        'size'], color=productData['color'], discount=productData['discount'], edition=productData['edition'],
-                    shopId=shopInstance, tagId=tagInstance
-                )
-                instance.save()
-                productInstance = Product.objects.all().filter(shopId_id=2)
-                data1 = ProductSerializer(
-                    instance=productInstance, many=True)
-                return Response(data=data1.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(data={}, status=status.HTTP_208_ALREADY_REPORTED)
+            data1 = ProductSerializer().create(validated_data=formData)
+            data['status'] = 201
+            instances = Product.objects.all()
+            data['products'] = ProductSerializer(
+                instance=instances, many=True).data
 
         except Exception:
-            return Response(data=data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print(f'some error occured in AddProductView')
+
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        pass
 
 
 class FeedbackListView(APIView):
@@ -207,7 +230,7 @@ class FeedbackListView(APIView):
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
-        print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
+        p()
         try:
             shopInstanceList = Shop.objects.all().filter(id=request.username)
             serializedShopData = ShopSerializer(
@@ -229,8 +252,10 @@ class PublisherInfoView(APIView):
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
+        p()
+        print(f'PublisherInfoView called for id={request.user.id}')
         data = {
             'status': 200,
-            'data': publisherInfoView(request.user.username)
+            'data': getAllPublisherInfo(request.user.id)
         }
         return Response(data=data, status=status.HTTP_200_OK)

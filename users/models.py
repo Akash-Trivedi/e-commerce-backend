@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -11,10 +12,10 @@ class LocalUser(AbstractUser):
 
     # other details
     dob = models.DateField(null=True)
-    address = models.CharField(max_length=128, null=True)
-    pincode = models.CharField(max_length=6, null=True)
-    city = models.CharField(max_length=64, null=True)
-    state = models.CharField(max_length=64, null=True)
+    address = models.CharField(max_length=128, null=False, default='')
+    pincode = models.CharField(max_length=6, null=False, default='')
+    city = models.CharField(max_length=64, null=False, default='')
+    state = models.CharField(max_length=64, null=False, default='')
     ipAddress = models.GenericIPAddressField(default='http://127.0.0.1')
     browser = models.CharField(
         max_length=255, null=False, default='localhost:chrome')

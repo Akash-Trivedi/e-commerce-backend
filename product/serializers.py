@@ -23,3 +23,23 @@ class ProductSerializer(serializers.ModelSerializer):
                 'write_only': True
             }
         }
+
+    def create(self, validated_data):
+        product = Product.objects.create(
+            name=validated_data['name'],
+            companyName=validated_data['companyName'],
+            description=validated_data['description'],
+            stock=validated_data['stock'],
+            price=validated_data['price'],
+            size=validated_data['size'],
+            color=validated_data['color'],
+            discount=validated_data['discount'],
+            edition=validated_data['edition'],
+            feedBackValue=0,
+            totalFeedbacks=0,
+            shopId_id=validated_data['shopId_id'],
+            tagId_id=validated_data['tagId_id']
+        )
+        product.save()
+        print('new product created!')
+        return product

@@ -14,7 +14,7 @@
         "terminal.integrated.fontSize": 18,
         "terminal.integrated.fontFamily": "inconsolata",
         "editor.glyphMargin": false,
-        "workbench.colorTheme": "Visual Studio Dark",
+        "workbench.colorTheme": "Gruvbox Dark Hard",
         "editor.fontLigatures": true,
         "editor.defaultFormatter": "autopep8",
         "[html]": {
