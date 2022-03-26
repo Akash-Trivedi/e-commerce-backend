@@ -13,6 +13,12 @@ from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes, APIView)
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def p():
+    print('\n'+'-'*16+'NEW REQUEST'+'-'*16+'\n')
 
 
 class CustomerListView(APIView):
@@ -55,34 +61,55 @@ class CustomerOrderSummaryView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CustomerRegistrationView(APIView):
+class CustomerSignupView(APIView):
+
+    permission_classes = (AllowAny,)
+
     def post(self, request):
+        p()
+        data = {
+            'status': 500,
+            'data': {
+                'token': {},
+                'userInfo': {}
+            }
+        }
         try:
-            # checks if the number already exists
-            contactNumber = request.data['contactId']
-            user = LocalUser.objects.filter(contactId=contactNumber).get()
-            return Response(status=status.HTTP_409_CONFLICT)
+            formData = request.data
+            user = LocalUser.objects.get(username=formData['username'])
+            data['status'] = 409
+            return Response(data=data, status=status.HTTP_409_CONFLICT)
 
         except LocalUser.DoesNotExist:
-            instance = LocalUserSerializer(data=request.data)
-            if instance.is_valid():
-                instance.save()
-            else:
-                return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-            return Response(status=status.HTTP_201_CREATED)
-
+            instance = LocalUserSerializer().create(formData, isPublisher=False)
+            data['status'] = 201
+            data['data']['userInfo'] = LocalUserSerializer(
+                instance=instance).data
+            refresh = RefreshToken.for_user(instance)
+            data['data']['token'] = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }
         except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print('some error occured')
+        else:
+            data['status'] = 201
+        finally:
+            print(data)
+            return Response(data=data, status=status.HTTP_200_OK)
 
 
-class CustomerUpdateView(APIView):
-    def post(self, request):
-        try:
-            instance = LocalUserSerializer(data=request.data)
-            if instance.is_valid():
-                instance.save()
-                return Response(status=status.HTTP_200_OK)
-            else:
-                return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class CustomerProfileUpdateView(APIView):
+    
+    def put(self, request):
+        p()
+        formData = request.data
+        print(f'PublisherInfoView called for id={request.user.id}')
+        data = {'status': 500}
+        instance = LocalUser.objects.get(id=request.user.id)
+        udpatedInstance = LocalUserSerializer().update(instance=instance,
+                                                       validated_data=formData)
+        data['userInfo'] = LocalUserSerializer(instance=udpatedInstance).data
+        data['status'] = 201
+
+        return Response(data=data, status=status.HTTP_201_CREATED)

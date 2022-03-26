@@ -1,11 +1,8 @@
-# # date-created: 17-feb-2022
-# # usage:
-# # calling function:
-from rest_framework_simplejwt.backends import TokenBackend
-from email.policy import HTTP
-from multiprocessing import AuthenticationError
-from os import stat
-from weakref import ref
+# author: akash trivedi
+# date-created: 17-feb-2022
+# functionality:
+# caller:
+
 from product.models import Product, Tag
 from product.serializers import ProductSerializer
 from publisher.serializers import ShopSerializer
@@ -29,42 +26,66 @@ def p():
 
 
 class PublisherOrderListView(APIView):
-    pass
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        data = {
+            'status': 500,
+            'orderHistory': []
+        }
+        try:
+            pass
+        except Exception:
+            print('some error occured')
+        else:
+            data['status'] = 200
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
 
 
 class PublisherSignupView(APIView):
+
     permission_classes = (AllowAny,)
 
     def post(self, request):
         p()
-        if request.data['username'] != '' and request.data['password'] != '':
-            try:
-                formData = request.data
-                user = LocalUser.objects.get(username=formData['username'])
-                return Response(data={'status': 409}, status=status.HTTP_409_CONFLICT)
-            except LocalUser.DoesNotExist:
-                instance = LocalUserSerializer().create(formData)
-                newUser = LocalUser.objects.get(
-                    username=request.data['username'])
-                userSerilazedData = LocalUserSerializer(instance=newUser)
-                refresh = RefreshToken.for_user(newUser)
-                token = {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token)
-                }
-                return Response(data={'status': 201, 'data': userSerilazedData.data, 'token': token}, status=status.HTTP_201_CREATED)
+        data = {
+            'status': 500,
+            'data': {
+                'token': {},
+                'userInfo': {}
+            }
+        }
+        try:
+            formData = request.data
+            user = LocalUser.objects.get(username=formData['username'])
+            data['status'] = 409
+            return Response(data=data, status=status.HTTP_409_CONFLICT)
 
-            except Exception:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except LocalUser.DoesNotExist:
+            instance = LocalUserSerializer().create(formData, isPublisher=True)
+            data['status'] = 201
+            data['data']['userInfo'] = LocalUserSerializer(
+                instance=instance).data
+            refresh = RefreshToken.for_user(instance)
+            data['data']['token'] = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }
+        except Exception:
+            print('some error occured')
         else:
-            return Response(data={status: 204}, status=status.HTTP_204_NO_CONTENT)
+            data['status'] = 201
+        finally:
+            print(data)
+            return Response(data=data, status=status.HTTP_200_OK)
 
 
-def publisherInfoView(id=1):
-    print(f'publisherListView called for id={id}')
+def publisherInfoView(publisherId=1):
+    print(f'publisherListView called for id={publisherId}')
     data = {}
     try:
-        publisherInstanceList = LocalUser.objects.get(id=id)
+        publisherInstanceList = LocalUser.objects.get(id=publisherId)
         serializedData = LocalUserSerializer(
             publisherInstanceList)
         data = serializedData.data
@@ -120,7 +141,6 @@ class PublisherLogin(APIView):
         try:
             exists = LocalUser.objects.filter(
                 username=request.data['username'], password=request.data['password'])
-            # then create cookei and add session id to it
             data = {
                 'status': 200,
                 'data': publisherInfoView(request.user.id)
@@ -185,16 +205,19 @@ def getAllPublisherInfo(id):
     print(f'publisherInfoView called for id={id}')
     data = {}
     data['shops'] = listShopView(id)
-    data['publisherInfo'] = publisherInfoView(id)
-    data['products'] = productListView(id)
+    data['userInfo'] = publisherInfoView(id)
+    data['publisherProducts'] = []
     data['feedbacks'] = []
     data['totalSales'] = 0
     for shop in data['shops']:
         data['totalSales'] = shop['sales'] + data['totalSales']
+    for shop in data['shops']:
+        data['publisherProducts'] = productListView(shop['shopId'])
     return data
 
 
 class AddProductView(APIView):
+    authentication_classes = (JWTAuthentication,)
 
     def post(self, request):
         p()
@@ -259,3 +282,20 @@ class PublisherInfoView(APIView):
             'data': getAllPublisherInfo(request.user.id)
         }
         return Response(data=data, status=status.HTTP_200_OK)
+
+
+class PublisherProfileUpdateView(APIView):
+    authentication_classes = (JWTAuthentication,)
+
+    def put(self, request):
+        p()
+        formData = request.data
+        print(f'PublisherInfoView called for id={request.user.id}')
+        data = {'status': 500}
+        instance = LocalUser.objects.get(id=request.user.id)
+        udpatedInstance = LocalUserSerializer().update(instance=instance,
+                                                       validated_data=formData)
+        data['userInfo'] = LocalUserSerializer(instance=udpatedInstance).data
+        data['status'] = 201
+
+        return Response(data=data, status=status.HTTP_201_CREATED)

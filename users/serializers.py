@@ -22,11 +22,26 @@ class LocalUserSerializer(ModelSerializer):
             'user_permissions': option
         }
 
-    def create(self, validated_data):
+    def create(self, validated_data, isPublisher=True):
         user = LocalUser.objects.create(
-            isPublisher=True,
+            isPublisher=isPublisher,
             username=validated_data['username']
         )
         user.set_password(validated_data['password'])
         user.save()
+        if isPublisher:
+            print('new publisher created!')
+        else:
+            print('new customer created!')
         return user
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data['first_name']
+        instance.last_name = validated_data['last_name']
+        instance.email = validated_data['email']
+        instance.pincode = validated_data['pincode']
+        instance.city = validated_data['city']
+        instance.state = validated_data['state']
+        instance.address = validated_data['address']
+        instance.save()
+        return instance

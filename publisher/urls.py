@@ -19,4 +19,5 @@ urlpatterns = [
     path('login/', views.PublisherLogin.as_view()),
     path('feedback/list-all/', views.FeedbackListView.as_view()),
     path('all-info/', views.PublisherInfoView.as_view()),
+    path('profile/update/', views.PublisherProfileUpdateView.as_view()),
 ]
