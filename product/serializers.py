@@ -25,6 +25,7 @@ class ProductSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        print(validated_data)
         product = Product.objects.create(
             name=validated_data['name'],
             companyName=validated_data['companyName'],

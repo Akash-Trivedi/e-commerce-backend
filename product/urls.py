@@ -12,4 +12,7 @@ urlpatterns = [
     path('tags/list-all/', views.TagListView.as_view()),
     path('list-all/<slug:pincode>/', views.ProductListView.as_view()),
     path('<int:pk>/', views.SingleProductView.as_view()),
+    path('add/', views.AddProductView.as_view()),
+    path('tag/<int:tagId>/', views.ProductsByTagView.as_view()),
+    path('update/', views.UpdateProductView.as_view()),
 ]

@@ -19,6 +19,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
+from backendroot.settings import BASE_DIR
 
 
 def p():
@@ -26,6 +28,7 @@ def p():
 
 
 class PublisherOrderListView(APIView):
+
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
@@ -60,7 +63,6 @@ class PublisherSignupView(APIView):
             formData = request.data
             user = LocalUser.objects.get(username=formData['username'])
             data['status'] = 409
-            return Response(data=data, status=status.HTTP_409_CONFLICT)
 
         except LocalUser.DoesNotExist:
             instance = LocalUserSerializer().create(formData, isPublisher=True)
@@ -113,14 +115,14 @@ def listShopView(publisherId):
         return data
 
 
-def feedackListView(publisherId):
-    print(f'feedbackListView called for shopId={publisherId}')
+def feedackListView(shopId):
+    print(f'feedbackListView called for shopId={shopId}')
 
     data = []
     try:
-        shopInstance = Shop.objects.filter(id_id=publisherId)
-        serializedData = ShopSerializer(
-            instance=shopInstance, many=True)
+        feedbackInstance = Feedback.objects.filter(shopId_id=shopId)
+        serializedData = FeedbackSerializer(
+            instance=feedbackInstance, many=True)
 
         data = serializedData.data
     except Shop.DoesNotExist:
@@ -131,27 +133,30 @@ def feedackListView(publisherId):
         return data
 
 
-class PublisherLogin(APIView):
+class PublisherLoginView(APIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = (JWTAuthentication, )
 
     def post(self, request):
         p()
-        print(request.user.id)
+        data = {
+            'status': 500,
+            'userInfo': {}
+        }
         try:
             exists = LocalUser.objects.filter(
-                username=request.data['username'], password=request.data['password'])
-            data = {
-                'status': 200,
-                'data': publisherInfoView(request.user.id)
-            }
-            return Response(data=data, status=status.HTTP_200_OK)
+                username=request.data['username'], password=request.data['password'], isPublisher=True)
+            data['userInfo'] = LocalUserSerializer(instance=exists).data
 
         except LocalUser.DoesNotExist:
-            return Response(data={'status': 404}, status=status.HTTP_404_NOT_FOUND)
+            data['status'] = 404
 
         except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print('some exception occured')
+        else:
+            data['status'] = 200
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
 
 
 class AddShopView(APIView):
@@ -212,40 +217,9 @@ def getAllPublisherInfo(id):
     for shop in data['shops']:
         data['totalSales'] = shop['sales'] + data['totalSales']
     for shop in data['shops']:
-        data['publisherProducts'] = productListView(shop['shopId'])
+        data['publisherProducts'].extend(productListView(shop['shopId']))
+        data['feedbacks'].extend(feedackListView(shop['shopId']))
     return data
-
-
-class AddProductView(APIView):
-    authentication_classes = (JWTAuthentication,)
-
-    def post(self, request):
-        p()
-        print(f'AddProductView for id={request.user.id}')
-        data = {
-            'status': 500,
-        }
-        try:
-            formData = request.data
-            product = Product.objects.get(name=formData['name'])
-            data['status'] = 409
-            return Response(data=data, status=status.HTTP_409_CONFLICT)
-
-        except Product.DoesNotExist:
-            data1 = ProductSerializer().create(validated_data=formData)
-            data['status'] = 201
-            instances = Product.objects.all()
-            data['products'] = ProductSerializer(
-                instance=instances, many=True).data
-
-        except Exception:
-            print(f'some error occured in AddProductView')
-
-        finally:
-            return Response(data=data, status=status.HTTP_200_OK)
-
-    def put(self, request):
-        pass
 
 
 class FeedbackListView(APIView):
@@ -286,9 +260,11 @@ class PublisherInfoView(APIView):
 
 class PublisherProfileUpdateView(APIView):
     authentication_classes = (JWTAuthentication,)
+    parser_classes = [MultiPartParser, FormParser]
 
     def put(self, request):
         p()
+        print(request.files)
         formData = request.data
         print(f'PublisherInfoView called for id={request.user.id}')
         data = {'status': 500}

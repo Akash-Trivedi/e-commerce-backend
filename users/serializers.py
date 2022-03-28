@@ -43,5 +43,6 @@ class LocalUserSerializer(ModelSerializer):
         instance.city = validated_data['city']
         instance.state = validated_data['state']
         instance.address = validated_data['address']
+        instance.profilePhoto = f'media/{validated_data["profilePhoto"]}'
         instance.save()
         return instance

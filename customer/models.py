@@ -38,6 +38,7 @@ class Feedback(models.Model):
     # other details
     starValue = models.IntegerField(null=False)
     timeStamp = models.DateTimeField(default=timezone.now)
+    heading = models.CharField(max_length=64, default='', null=False)
     review = models.TextField(max_length=600)
     ipAddress = models.GenericIPAddressField(default='127.0.0.1')
     browser = models.CharField(

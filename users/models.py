@@ -5,6 +5,12 @@ from django.utils import timezone
 # Create your models here.
 
 
+def imageUpload(instance, filename):
+    print(instance)
+    print(filename)
+    return f'profiles/{filename}'.format(filename=filename)
+
+
 class LocalUser(AbstractUser):
     id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=10, null=False, unique=True)
@@ -20,6 +26,7 @@ class LocalUser(AbstractUser):
     browser = models.CharField(
         max_length=255, null=False, default='localhost:chrome')
     isPublisher = models.BooleanField(null=False, default=False)
+    profilePhoto = models.ImageField(upload_to=imageUpload, default='')
 
     def __str__(self) -> str:
         data = f'id {self.id}, username {self.username}, password {self.password}, is_superuser {self.is_superuser}'

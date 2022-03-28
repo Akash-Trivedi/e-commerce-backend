@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 def p():
@@ -113,3 +114,28 @@ class CustomerProfileUpdateView(APIView):
         data['status'] = 201
 
         return Response(data=data, status=status.HTTP_201_CREATED)
+
+class CustomerLoginView(APIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JWTAuthentication, )
+
+    def post(self, request):
+        p()
+        data = {
+            'status': 500,
+            'userInfo': {}
+        }
+        try:
+            exists = LocalUser.objects.filter(
+                username=request.data['username'], password=request.data['password'], isPublisher=True)
+            data['userInfo'] = LocalUserSerializer(instance=exists).data
+
+        except LocalUser.DoesNotExist:
+            data['status'] = 404
+
+        except Exception:
+            print('some exception occured')
+        else:
+            data['status'] = 200
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
