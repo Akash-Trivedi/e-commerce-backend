@@ -5,10 +5,8 @@ from django.utils import timezone
 # Create your models here.
 
 
-def imageUpload(instance, filename):
-    print(instance)
-    print(filename)
-    return f'profiles/{filename}'.format(filename=filename)
+def setImageName(instance, filename):
+    return ''.join(['F:/github/e-commerce/e-commerce-backend/media/profile-images/', instance.id, '/', filename])
 
 
 class LocalUser(AbstractUser):
@@ -26,7 +24,8 @@ class LocalUser(AbstractUser):
     browser = models.CharField(
         max_length=255, null=False, default='localhost:chrome')
     isPublisher = models.BooleanField(null=False, default=False)
-    profilePhoto = models.ImageField(upload_to=imageUpload, default='')
+    profilePhoto = models.ImageField(upload_to=setImageName,
+                                     null=True, default='F:/github/e-commerce/e-commerce-backend/media/profile-images/photos/default.jpg')
 
     def __str__(self) -> str:
         data = f'id {self.id}, username {self.username}, password {self.password}, is_superuser {self.is_superuser}'

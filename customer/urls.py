@@ -8,4 +8,5 @@ urlpatterns = [
     path('order-history/', views.CustomerOrderSummaryView.as_view()),
     path('feedback/list-all/', views.CustomerFeedbackView.as_view()),
     path('profile/update/', views.CustomerProfileUpdateView.as_view()),
+    path('all-info/', views.CustomerInfoView.as_view()),
 ]

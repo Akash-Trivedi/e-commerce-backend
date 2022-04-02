@@ -101,7 +101,7 @@ class CustomerSignupView(APIView):
 
 
 class CustomerProfileUpdateView(APIView):
-    
+
     def put(self, request):
         p()
         formData = request.data
@@ -115,6 +115,7 @@ class CustomerProfileUpdateView(APIView):
 
         return Response(data=data, status=status.HTTP_201_CREATED)
 
+
 class CustomerLoginView(APIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = (JWTAuthentication, )
@@ -127,7 +128,7 @@ class CustomerLoginView(APIView):
         }
         try:
             exists = LocalUser.objects.filter(
-                username=request.data['username'], password=request.data['password'], isPublisher=True)
+                username=request.data['username'], password=request.data['password'], isPublisher=False)
             data['userInfo'] = LocalUserSerializer(instance=exists).data
 
         except LocalUser.DoesNotExist:
@@ -137,5 +138,43 @@ class CustomerLoginView(APIView):
             print('some exception occured')
         else:
             data['status'] = 200
+        finally:
+            return Response(data=data, status=status.HTTP_200_OK)
+
+
+class CustomerInfoView(APIView):
+    authentication_classes = (JWTAuthentication, )
+
+    def get(self, request):
+        p()
+        print(f'called for userid={request.user.id}')
+        data = {
+            'status': 500,
+            'data': {
+                'userInfo': {},
+                'feedbacks': [],
+                'orderHistory': []
+            }
+        }
+        
+        try:
+            user = LocalUser.objects.get(
+                id=request.user.id)
+            data['data']['userInfo'] = LocalUserSerializer(
+                user).data
+            feedbackQuerySet = Feedback.objects.filter(id_id=request.user.id)
+            data['data']['feedbacks'] = FeedbackSerializer(
+                instance=feedbackQuerySet, many=True).data
+
+        except LocalUser.DoesNotExist:
+            data['status'] = 404
+
+        except Exception:
+            print('error occured in CustomerInfoView')
+
+        else:
+            print('no errors in CustomerInfoView')
+            data['status'] = 200
+
         finally:
             return Response(data=data, status=status.HTTP_200_OK)

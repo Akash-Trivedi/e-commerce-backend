@@ -36,6 +36,9 @@ class LocalUserSerializer(ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
+
+        BASEURL = 'F:/github/e-commerce/e-commerce-backend/media/profile-images/'
+
         instance.first_name = validated_data['first_name']
         instance.last_name = validated_data['last_name']
         instance.email = validated_data['email']
@@ -43,6 +46,6 @@ class LocalUserSerializer(ModelSerializer):
         instance.city = validated_data['city']
         instance.state = validated_data['state']
         instance.address = validated_data['address']
-        instance.profilePhoto = f'media/{validated_data["profilePhoto"]}'
+        instance.profilePhoto = validated_data['profilePhoto']
         instance.save()
         return instance

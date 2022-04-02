@@ -147,6 +147,7 @@ class PublisherLoginView(APIView):
             exists = LocalUser.objects.filter(
                 username=request.data['username'], password=request.data['password'], isPublisher=True)
             data['userInfo'] = LocalUserSerializer(instance=exists).data
+            print(data['userInfo'])
 
         except LocalUser.DoesNotExist:
             data['status'] = 404
@@ -156,6 +157,7 @@ class PublisherLoginView(APIView):
         else:
             data['status'] = 200
         finally:
+            print(data)
             return Response(data=data, status=status.HTTP_200_OK)
 
 
@@ -211,13 +213,13 @@ def getAllPublisherInfo(id):
     data = {}
     data['shops'] = listShopView(id)
     data['userInfo'] = publisherInfoView(id)
-    data['publisherProducts'] = []
+    data['products'] = []
     data['feedbacks'] = []
     data['totalSales'] = 0
     for shop in data['shops']:
         data['totalSales'] = shop['sales'] + data['totalSales']
     for shop in data['shops']:
-        data['publisherProducts'].extend(productListView(shop['shopId']))
+        data['products'].extend(productListView(shop['shopId']))
         data['feedbacks'].extend(feedackListView(shop['shopId']))
     return data
 
@@ -260,11 +262,10 @@ class PublisherInfoView(APIView):
 
 class PublisherProfileUpdateView(APIView):
     authentication_classes = (JWTAuthentication,)
-    parser_classes = [MultiPartParser, FormParser]
 
     def put(self, request):
         p()
-        print(request.files)
+        print(request.FILES)
         formData = request.data
         print(f'PublisherInfoView called for id={request.user.id}')
         data = {'status': 500}
