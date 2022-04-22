@@ -1,5 +1,5 @@
 # e-commerce-backend
-back-end for e-commerce in Django.
+REST API E-Commerce in Django.
   - Django
 
 **creating virtual env**
